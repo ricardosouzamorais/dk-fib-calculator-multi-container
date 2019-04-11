@@ -1,6 +1,11 @@
 # Application Architecture
 
 The architecture for this Fibonacci calculator could be seen in the following diagrams:
+![Application Architecture](/docs/images/architecture-01.png)
+
+![User Submit Flow](/docs/images/user-submit-flow.png)
+
+![Database Repositories](/docs/images/information-repositories.png)
 
 ## Worker
 Is what is going to watch Redis and anytime that it gets a new index inserted into Redis, will automatically pull the value out and calculate the appropriate Fibonacci value for it and inser the value back into Redis.
