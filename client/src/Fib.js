@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import axios from 'axious';
+import axios from 'axios';
 
-class Fib extends Compomnent {
+class Fib extends Component {
     state = {
         seenIndexes: [],
         values: {},
@@ -15,9 +15,7 @@ class Fib extends Compomnent {
 
     async fetchValues() {
         const values = await axios.get('/api/values/current');
-        this.setState({ 
-            values : values.data 
-        });
+        this.setState({ values: values.data });
     }
 
     async fetchIndexes() {
@@ -33,7 +31,7 @@ class Fib extends Compomnent {
         event.preventDefault();
 
         await axios.post('api/values', {
-            index = this.state.index
+            index: this.state.index
         });
 
         this.setState({ index: '' });

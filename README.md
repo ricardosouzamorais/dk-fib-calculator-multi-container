@@ -13,3 +13,38 @@ Is what is going to watch Redis and anytime that it gets a new index inserted in
 ### Duplicating Redis Client
 
 According to Redis documentation if we ever have a client we have a client that is listenning ou publishing information on Redis, we have to make a duplicate connection because when a connection is turned into a connection that is going to listen or subscribe or publish information it cannot be used for other purporses.
+
+# Environment Variables
+
+When we build an image it a two-step process: build the image (something like preparation) and some point in the future when we actually run the container that is second part, take an image and run an instance from it.
+
+When we setup an environment variable inside of a docker-compose file we are setting up an environment variable that is applied at runtime, so ONLY WHEN THE CONTAINER IS STARTED UP.
+The information will not be encoded inside the image.
+
+![Environment Variables](/docs/images/env-variables.png)
+
+We will be using the first sintax because we are not going to have anything configured on our computer.
+
+## The name of the service
+
+When specifying the host for Redis or Postgres we can use the service name specified in the docker-compose file.
+
+# Nginx Path Routing
+
+Nginx will be used even for the development process.
+
+![Nginx Path Routing](/docs/images/nginx-path-routing-01.png)
+
+ It is going to look at all these different requests and decide on which backend service of ours that we want to route the request to.
+
+![Requests from browser](/docs/images/nginx-path-routing-02.png)
+
+The client thinks that it needs to make request to slash API but it is very clear that the server is not set tup to receive that /api route.
+
+## Why didn't we specify different ports for React and Express services ?
+
+Think about our application runs on a production environment. We probably don't want to have to worry about juggling these different ports. It would be a lot nicer if all of our frontend React code just make requests to some common backend and not have to worry about specifying the requests per service.
+
+
+If you check the Express routes, we will not see /api because it will be handled by Nginx path routing.
+When it comes in to Nginx, it is going to have the /api but when it comes out Nginx to Express, it is going without the /api, like /values/all, for example.
