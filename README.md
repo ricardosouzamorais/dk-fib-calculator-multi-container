@@ -68,6 +68,13 @@ server {
         proxy_pass http://client;
     }
 
+    location /sockjs-node {
+        proxy_pass http://client;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+
     location /api {
         rewrite /api/(.*) /$1 break;
         proxy_pass http://api;
@@ -75,6 +82,11 @@ server {
 }
 ```
 
+### Rewrite rule
+
 When the request comes in for /api we need to chop off the /api to send to server api.
 In the `rewrite /api/(.*) /$1 break;` sintax the `/$1` represents anything that is catch by the regular expression `(*.)`.
 The break essentially mean do not try to apply any other rewrite rules after applying this one.
+
+### Websocket Connection
+
