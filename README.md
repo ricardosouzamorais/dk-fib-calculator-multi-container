@@ -45,6 +45,36 @@ The client thinks that it needs to make request to slash API but it is very clea
 
 Think about our application runs on a production environment. We probably don't want to have to worry about juggling these different ports. It would be a lot nicer if all of our frontend React code just make requests to some common backend and not have to worry about specifying the requests per service.
 
-
 If you check the Express routes, we will not see /api because it will be handled by Nginx path routing.
 When it comes in to Nginx, it is going to have the /api but when it comes out Nginx to Express, it is going without the /api, like /values/all, for example.
+
+## The default.conf
+
+The `server client` points to the service that if delivered by `client` name and that is configured at docker-compose file.
+
+```
+upstream client {
+    server client:3000;
+}
+
+upstream api {
+    server api:5000;
+}
+
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://client;
+    }
+
+    location /api {
+        rewrite /api/(.*) /$1 break;
+        proxy_pass http://api;
+    }
+}
+```
+
+When the request comes in for /api we need to chop off the /api to send to server api.
+In the `rewrite /api/(.*) /$1 break;` sintax the `/$1` represents anything that is catch by the regular expression `(*.)`.
+The break essentially mean do not try to apply any other rewrite rules after applying this one.
