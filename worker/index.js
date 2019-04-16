@@ -9,7 +9,7 @@ const redisClient = redis.createClient({
     host: keys.redisHost,
     port: keys.redisPort,
     retry_strategy: () => 1000
-});
+  });
 
 // For subscription
 const redisSubscriber = redisClient.duplicate();
@@ -19,10 +19,16 @@ const redisSubscriber = redisClient.duplicate();
 function fib(index) {
     if (index < 2) return 1;
     return fib(index - 1) + fib(index - 2);
-}
+  }
 
 redisSubscriber.on('message', (channel, message) => {
-    redisClient.hset('values', message, fib(parseInt(message)));
-});
+    console.log('Working on progress...' );
+    fibCalc = fib(parseInt(message))
+    console.log('FIB Calc = '+ fibCalc);
+    redisClient.hset('values', message, fibCalc);
+    console.log('FIB Calc added on Redis');
+  });
 
 redisSubscriber.subscribe('insert');
+
+console.log('Starting worker Redis BE process...' );

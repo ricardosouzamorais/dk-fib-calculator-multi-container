@@ -21,8 +21,9 @@ const pgClient = new Pool({
 pgClient.on('error', () => console.log('Lost PG connection'));
 
 // Create the table if not exists
-pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)')
-    .catch(err => console.log(err));
+pgClient
+  .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+  .catch(err => console.log(err));
 
 // Redis Client Setup
 const redis = require('redis');
@@ -61,7 +62,7 @@ app.get('/values/all', async (req, res) => {
 // The Redis library does not have Promisses support, so need to use callbacks
 app.get('/values/current', async (req, res) => {
     redisClient.hgetall('values', (err, values) => {
-        res.send(values);
+      res.send(values);
     });
 });
 
@@ -76,7 +77,7 @@ app.post('/values', async (req, res) => {
 
     // Putting the default value on the Redis (not calculated).
     // The worked is going to replace that.
-    redisClient.hset('values', index, 'Nothing yet calculated!');
+    redisClient.hset('values', index, 'Nothing yet!');
     // Telling the worker that is time to calculate
     redisPublisher.publish('insert', index);
 
