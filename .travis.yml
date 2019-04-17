@@ -13,7 +13,7 @@ before_install:
 # That is different on "npm run test" because it hangs.
 # To solve that, we need to exit with "-- --coverage"
 script:
-  - docker run ricardosouzamorais/dclient-tests npm run test -- --coverage
+  - docker run ricardosouzamorais/client-tests npm run test -- --coverage
 
 # After tests being executed, create the images for production
 after_success:
