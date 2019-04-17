@@ -1,0 +1,32 @@
+sudo: required
+services:
+  - docker
+
+# Commands run before the tests
+# Points to Dockerfile.dev because the production Dockerfile does not run the test
+# so we cannot base ourselves on the result for proceed with deployment.
+# Since we have tests for React App only, we will base ourselves on that.
+before_install:
+  - docker build -t ricardosouzamorais/client-tests -f ./client/Dockerfile.dev ./client
+
+# It always expects that the tests run and terminates, not keep the terminal opened.
+# That is different on "npm run test" because it hangs.
+# To solve that, we need to exit with "-- --coverage"
+script:
+  - docker run ricardosouzamorais/dclient-tests npm run test -- --coverage
+
+# After tests being executed, create the images for production
+after_success:
+  - docker build -t ricardosouzamorais/multi-fib-client ./client
+  - docker build -t ricardosouzamorais/multi-fib-nginx  ./nginx
+  - docker build -t ricardosouzamorais/multi-fib-server ./server
+  - docker build -t ricardosouzamorais/multi-fib-worker ./worker
+  # Log in to the docker CLI
+  # The echo command sends the value of env variable and then
+  # essentially emit that over stdin as input to the next command (after pipe)
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take images and push them to docker hub
+  - docker push ricardosouzamorais/multi-fib-client
+  - docker push ricardosouzamorais/multi-fib-nginx
+  - docker push ricardosouzamorais/multi-fib-server
+  - docker push ricardosouzamorais/multi-fib-worker

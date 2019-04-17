@@ -112,5 +112,13 @@ Related to the client (React app) it will be a little bit different because we d
 ![Nginx instance for Dev](/docs/images/multi-nginx-instances-01.png)
 
 ### Production env
-![Nginx instance for Prod](/docs/images/multi-nginx-instances-02.png)
+![Nginx instances for Prod](/docs/images/multi-nginx-instances-02.png)
+
+The Nginx that is doing the Routing could route the API to Express Server and have inside it the bundle code of React App. However, you might want to run multiple copies of Nginx so the easiest reason for that might be to server up our Prod React App over there.
+
+### Travis Flow and Configuration
+
+![Travis Flow](/docs/images/travis-flow.png)
+
+Since we have test suite only for React App, we will consider only the return of that.
 
