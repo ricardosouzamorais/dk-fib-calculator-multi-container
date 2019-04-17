@@ -82,6 +82,8 @@ server {
 }
 ```
 
+The configuration above is something like a developer piece of configuration. If you are doing production, do not use that.
+
 ### Rewrite rule
 
 When the request comes in for /api we need to chop off the /api to send to server api.
@@ -89,4 +91,26 @@ In the `rewrite /api/(.*) /$1 break;` sintax the `/$1` represents anything that 
 The break essentially mean do not try to apply any other rewrite rules after applying this one.
 
 ### Websocket Connection
+
+The React version that was shown on the course was complaining about Websocket connection error, so we had to configure the proxy for that in the Nginx default configuration file.
+
+# Deployment on AWS
+
+Instead of making the build into the AWS EB environment, lets create an image, publish that on dockerhub and tell AWS EB to pulls the image from Docker Hub and deploy it.
+
+![Multi Container Setup](/docs/images/multi-container-aws.png)
+
+## Configuring Production Dockerfile
+
+For worker and server the files are the same, except for the `npm run dev` that is changed by `npm run start`.
+
+The dockerfile for nginx is also slightly different because it uses a differente configuration file where there is none Websocket proxy configuration.
+
+Related to the client (React app) it will be a little bit different because we do have multi Nginx instances.
+
+### Development env
+![Nginx instance for Dev](/docs/images/multi-nginx-instances-01.png)
+
+### Production env
+![Nginx instance for Prod](/docs/images/multi-nginx-instances-02.png)
 
