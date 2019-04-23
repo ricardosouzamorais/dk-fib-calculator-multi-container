@@ -30,3 +30,19 @@ after_success:
   - docker push ricardosouzamorais/multi-fib-nginx
   - docker push ricardosouzamorais/multi-fib-server
   - docker push ricardosouzamorais/multi-fib-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: "us-east-1"
+  app: "multi-docker-fib"
+  env: "MultiDockerFib-env"
+  # zip files from github and send it to s3; bucket and folder are created automatically
+  bucket_name: "elasticbeanstalk-us-east-1-629415030931"
+  bucket_path: "docker-multi-fib"
+   # only when code is sent to master 
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+     # Have to be wrapped in double quotes
+    secure: "$AWS_SECRET_KEY"

@@ -1,11 +1,16 @@
 # Application Architecture
 
-The architecture for this Fibonacci calculator could be seen in the following diagrams:
-![Application Architecture](/docs/images/architecture-01.png)
+## Application Flows
 
 ![User Submit Flow](/docs/images/user-submit-flow.png)
 
 ![Database Repositories](/docs/images/information-repositories.png)
+
+## Development Application Architecture
+![Development Application Architecture](/docs/images/architecture-01.png)
+
+## Production Application Architecture
+![Development Application Architecture](/docs/images/architecture-02.png)
 
 ## Worker
 Is what is going to watch Redis and anytime that it gets a new index inserted into Redis, will automatically pull the value out and calculate the appropriate Fibonacci value for it and inser the value back into Redis.
@@ -88,7 +93,7 @@ The configuration above is something like a developer piece of configuration. If
 
 When the request comes in for /api we need to chop off the /api to send to server api.
 In the `rewrite /api/(.*) /$1 break;` sintax the `/$1` represents anything that is catch by the regular expression `(*.)`.
-The break essentially mean do not try to apply any other rewrite rules after applying this one.
+The break essentially means to do not try to apply any other rewrite rules after applying this one.
 
 ### Websocket Connection
 
@@ -122,3 +127,73 @@ The Nginx that is doing the Routing could route the API to Express Server and ha
 
 Since we have test suite only for React App, we will consider only the return of that.
 
+## Deploying multiple container application
+
+Anytime we want to run multiple separate containers on Elastic Beanstalk at the same time, we have to go through an extra step of configuration to tell EB exactly how to treat our project.
+
+Inside our project directory we are going to create a file with a very special name: `Dockerrun.aws.json`
+
+It is going to tell Elastic Beanstalk where to pull all of our images from, what resources to allocate to each one, how to set uo some port mappings and some associated information.
+It is very similar to `docker-compose.yml` file that encodes a lot of directions that would normally be passed directly to `docker run`
+
+![Docker-Compose vs Dockerrun.aws](/docs/images/docker-compose-dockerrun-aws.png)
+
+In docker-compose we specify a bunch of different services ant then with each service we tell docker how to build the image, what ports to open, environment variables and a bunch of stuff like that. It is very similar into `Dockerrun.aws.json`, but instead of refering those things as services, they are called **Container Definitions**.
+
+The biggest difference between them is that docker compose it is going to contain some information about how to build an imagem, using a docker file, while with WAS we already have the images into docker hub, due to Travis Build process. Also `Dockerrun.aws.json` is customized to work directly with AWS.
+
+### Behind the scenes
+
+Elastic Beanstealk doesn't actually know how to work with containers, especially a multi container environment.
+
+Behind the scenes, it is delegating that hosting off to another sevice that is provided in AWS called Elastic Container Service (ECS).
+
+![Elastic Beanstalk behind the scenes](/docs/images/beanstalk-ecs.png)
+
+#### Links to AWS documentation
+*  [Task Definitions](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definitions.html)
+*  [Task Definitions Parameters - Container Definitions](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#container_definitions)
+
+### Hostname
+
+Similar to the service definition of `docker-compose.yml`. For the server we called that **api** due to reserved word `server` on Nginx config file.
+
+We do not need to specify the `hostname` (parameter is optional) for Nginx since we do not need any of the other containers talk to Nginx. The flow is from Nginx to the other services. We kept bu not needed.
+
+### Essential
+
+When specifyiung your container definitions, `essential` means that if it is marked as `true`, if that container crashes, all other containers in this groups of containers will be closed down at the same time, even if they are running ok. 
+In our case, with our current architecture, if Nginx crashed, the user is not able to access anything. So this service will be marked as essential.
+
+At least one service of the list of your containers must be marked as `essential`.
+
+### Links
+
+In **docker compose** a network is created between the specified services but for **AWS ECS**, we need to form up links between the containers.
+
+In our architecture, we need that **Nginx container** talks to **client** and **server** containers. This configuration takes the value of `name` attribute, not the `hostname`, so for server/api, it has to be `server`.
+
+![Nginx links to Server and Client](/docs/images/nginx-links.png)
+
+Links are unidirectional, so Nginx can point to client, but the other one, it is not possible.
+
+# Databases on Containers
+
+We are going to use to external services, provided by AWS, RDS and ElastiCache, check the diagram on section [Production Application Architecture](http://oglobo.com.br).
+These services are not customized for using with AWS Elastic Beanstalk nor Containers.
+
+![ElastiCache Features](/docs/images/aws-elasticache.png)
+
+![RDS Features](/docs/images/aws-rds.png)
+
+# AWS - VPC and Security Groups
+
+![VPC and our services](/docs/images/vpc-and-our-services-01.png)
+
+![VPC and Security Group](/docs/images/vpc-and-our-services-02.png)
+
+When we create the AWS Elastic Beanstalk environment, a security group is created by default, making able to receive connections on port 80 from everywhere in the globe.
+
+# Environment Variables on Beanstalk
+
+When setting them, they are valid for all the containers, differently from `docker-compose.yml`.
