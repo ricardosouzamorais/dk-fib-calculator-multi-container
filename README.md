@@ -177,6 +177,10 @@ In our architecture, we need that **Nginx container** talks to **client** and **
 
 Links are unidirectional, so Nginx can point to client, but the other one, it is not possible.
 
+### Memory
+
+This parameter is **required**. The value should be specified in MB.
+
 # Databases on Containers
 
 We are going to use to external services, provided by AWS, RDS and ElastiCache, check the diagram on section [Production Application Architecture](http://oglobo.com.br).
