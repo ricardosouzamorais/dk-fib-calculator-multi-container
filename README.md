@@ -201,3 +201,77 @@ When we create the AWS Elastic Beanstalk environment, a security group is create
 # Environment Variables on Beanstalk
 
 When setting them, they are valid for all the containers, differently from `docker-compose.yml`.
+
+# Kubernetes
+
+There are some tools that will be used at both Dev and Prod environments like `kubectl`. On the other hand others are for Dev only like `minikube`.
+
+![Dev v.s. Prod](/docs/images/kubernetes-tools-dev-vs-prod.png)
+
+## Local Installation
+
+We need `kubectl` that is a CLI for interacting with our master and cluster.<br/>
+We also need a VM driver like VirtualBox that will be used to be our single node and last but not least, `minikube` for managing the VM that will run a single node.
+
+![Local Kubernetes Development](/docs/images/kubernetes-local-dev.png)
+
+### Installation on MacOS
+
+![Installation on MacOS](/docs/images/kubernetes-install-macos.png)
+
+## Docker Compose V.S Kubernetes
+
+### Docker Compose Structure
+
+![Docker Compose Structure](/docs/images/docker-compose-structure.png)
+
+### Diferences between them
+![Differences](/docs/images/docker-compose-vs-kubernetes-differences.png)
+
+### What to do for a local Kubernetes Cluster
+
+![What To Do](/docs/images/docker-compose-vs-kubernetes.png)
+
+## Config files
+
+### Keyworkd `kind`
+
+The `kind` entry inside of all configuration files is meant to represent or indicate the type of object that we want to make.
+
+Objects are essentially things that are going to be created inside our Kubernetes cluster to get our application to work the way we might expect.
+
+![Kubernetes Config Files](/docs/images/kubernetes-config-files.png) 
+
+*  ***Pod*** is used to run a container
+*  ***Service*** is used to setup networking
+
+### Keyword `apiVersion`
+
+When we specify the API version at the very top of the file that essentially limits the types of objects that we can specify winint a given configration file.
+
+The following diagram does not represents all types available on both examples of APIs.
+
+![apiVersion](/docs/images/kubernetes-config-files-apiversion.png) 
+
+## Config file for a container (Pod)
+
+When minikube starts it creates a VM on your computer that is referenced as a ***Node*** and that is going to be used by Kubernetes to run some number of different objects.<br/>
+The most basic object is something that is referred as ***Pod***.
+
+![Pod](/docs/images/kubernetes-pod.png) 
+
+The ***Pod*** itself is essentially a grouping of containers with a very similar purpose.It means that absolutely positively must be deployed together and must be running together in order for application to work correctly. In the world of a ***Pod** when we start to group containers together, we are grouping them because they have a very tightly coupled relationship and must be executed with each other.
+
+As an example, image a ***Pod*** that is running three containers as the following diagram and would be a good example of when we would use a ***Pod*** with multiple containers.
+
+![More than one container per Pod](kubernetes-pod-more-than-one-container.png)
+
+The *looger* is 100% intended to connect to *postgres* container and pull some information from that. If *postgres* goes way, *logger* will be completely useless.
+
+We cannot deploy individual containers by themselves as we could with **docker**, **docker compose** or **AWS Beanstalk**. The smallest thing we can deploy into a k8s cluster is a ***Pod***, so anytime we want to deploy a container, we need a ***Pod***.
+
+In the `spec` section of config file, we have just one container which has its `name` as an arbitrary name, the `image` as one available from **docker hub** and `ports` that specifies the available container ports that we are going to expose to the outside world.
+
+Why are we going to expose port 3000? Remember that our clients container has an **Nginx** which exposes the React bundle build file and that listens on port 3000. But that is not enough on world of Kubernetes. In order to have that `containerPort` mapped correctly, we need the second configuration file for networking setup.
+
+## Config file for network setup (Service)
