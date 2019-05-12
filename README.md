@@ -253,7 +253,7 @@ The following diagram does not represents all types available on both examples o
 
 ![apiVersion](/docs/images/kubernetes-config-files-apiversion.png) 
 
-## Config file for a container (Pod)
+## Config file for a container (Pod - client-pod.yaml)
 
 When minikube starts it creates a VM on your computer that is referenced as a ***Node*** and that is going to be used by Kubernetes to run some number of different objects.<br/>
 The most basic object is something that is referred as ***Pod***.
@@ -264,14 +264,82 @@ The ***Pod*** itself is essentially a grouping of containers with a very similar
 
 As an example, image a ***Pod*** that is running three containers as the following diagram and would be a good example of when we would use a ***Pod*** with multiple containers.
 
-![More than one container per Pod](kubernetes-pod-more-than-one-container.png)
+![More than one container per Pod](/docs/images/kubernetes-pod-more-than-one-container.png)
 
 The *looger* is 100% intended to connect to *postgres* container and pull some information from that. If *postgres* goes way, *logger* will be completely useless.
 
-We cannot deploy individual containers by themselves as we could with **docker**, **docker compose** or **AWS Beanstalk**. The smallest thing we can deploy into a k8s cluster is a ***Pod***, so anytime we want to deploy a container, we need a ***Pod***.
+We cannot deploy individual containers by themselves as we could with **docker**, **docker compose** or **AWS Beanstalk**. The smallest thing we can deploy into a **k8s** cluster is a ***Pod***, so anytime we want to deploy a container, we need a ***Pod***.
+
+### Metadata section
+
+The `name` is name of the ***Pod*** that is being created and that is motly used for a lot of logging purposes.<br/>
+The `labels` defines labels for that ***Pod*** that can be used to link to ***Service*** type of object.
+
+### Spec section
 
 In the `spec` section of config file, we have just one container which has its `name` as an arbitrary name, the `image` as one available from **docker hub** and `ports` that specifies the available container ports that we are going to expose to the outside world.
 
 Why are we going to expose port 3000? Remember that our clients container has an **Nginx** which exposes the React bundle build file and that listens on port 3000. But that is not enough on world of Kubernetes. In order to have that `containerPort` mapped correctly, we need the second configuration file for networking setup.
 
-## Config file for network setup (Service)
+## Config file for network setup (Service - client-node-port.yaml)
+
+![Pods and Services](/docs/images/kubernetes-pods-services.png)
+
+We use that kind of object for setting up networking in a **k8s** cluster. This kind of object has subtypes as shown in following image:
+
+![Services Subtypes](/docs/images/kubernetes-pods-services-subtypes.png)
+
+In our config file, we used ***NodePort*** as the subtype of ***Service***, in `spec` section, and that is the way we expose a container to the outside world. It allows to open up your web browser and access that running container.<br/>
+This is good for development purposes only and we DO NOT use ***NodePort*** as a service type on production environments except on one or two very specific exceptions that will be treat during the course.
+
+#### The final picture for development client running on your local machine
+
+Every single node or member of **k8s** cluster has a program on it called `kube-proxy` which works as on single window to the outside world.
+
+![Final Art](/docs/images/kubernetes-client-final-picture-flow.png)
+
+### `selector` section
+
+Rather than using any naming system which would point to the client ***Pod***, we use a label selector system available at **k8s**.
+
+In our ***Pod*** config file you can see `component: web`and it is a key-value, so it could be any value like `tier: frontend`, for example. We just need to have the ***Pod*** and ***Service*** configured with the same key-value.
+
+![Label Selector System](/docs/images/kubernetes-client-final-picture-flow-detailed.png)
+
+### `ports` section
+
+It describes all collection of ports, in an array format, that need to be opened up or mapped on the target object.
+
+![NodePort Service](/docs/images/kubernetes-nodeport-service.png)
+
+The `port` is going to be the port that another ***Pod*** or another container inside of **k8s** cluster could use to access our client ***Pod***. At this time, it is not useful because we do not have any other objects or anything else inside of our **k8s** cluster that is going to attempt to reach into that client ***Pod***.
+
+The `targetPort` is identical to `containerPort` from ***Pod*** config file and representes the port that is available on the ***Pod*** to where ***Service*** redirect traffics to.
+
+The `nodePort` is the port that we will use to access the client ***Pod*** throught the browser, so it what is exposed to the outside world.<br/>
+`nodePort` is always going to be a number between *30000* and *32767* but it is not a non required property. In case you do not specify it, it will be randomly assigned.
+
+Of course, as we do not use the `NodePort` ***Service*** in a production environment, this randomly assignment is not a problem.
+
+## Feed a config file to Kubectl
+
+Use the command: `kubectl apply -f FILENAME`
+
+![Feed config file to Kubectl](/docs/images/kubectl-feed-config-file.png)
+
+In order to get a status of any object that we submitted we can use the command: `kubectl get OBJECT_TYPE`
+
+It grabs the status of an entire groups of object types, for example:
+*  `kubectl get pods`
+*  `kubectl get services`
+
+When running `kubectl get services` we will dot not see the `targetPort`:
+
+|NAME|TYPE|CLUSTER-IP|EXTERNAL-IP|PORT(S)|AGE|
+|---|---|---|---|---|---|
+|client-node-port|NodePort|10.102.212.13|<none>|3050:31515/TCP|2m18s|
+|kubernetes|ClusterIP|10.96.0.1|<none>|443/TCP|5d22h|
+
+## Accessing the client
+
+If we try to access `http://localhost:31515` we will not get the page because all the ports that we are dealing are relate the the VM created by `minikube`. We actually need the IP address assigned to this VM. To get this IP address, just run: `minikube ip`
