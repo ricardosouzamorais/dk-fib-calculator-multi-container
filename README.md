@@ -355,3 +355,10 @@ If we try to access `http://localhost:31515` we will not get the page because al
 ## Kubernetes Takeways
 
 ![Important Takeaways](/docs/images/kubernetes-important-takeaways.png)
+
+## Imperative V.S. Declarative approaches
+
+When you start looking at ***k8s*** documentation, blog posts, stackoverflow and whatever else, you are going to see some resources recommending the **Imperative Approach**. `kubectl` can go on both ways.<br/>
+For real production deployment, every engineer out there, everyone in the community, is always to advocate taking the declarative approach.
+
+![Imperative V.S. Declarative approaches](/docs/images/kubernetes-imperative-vs-declarative-deploy.png)
