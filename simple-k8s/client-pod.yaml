@@ -7,6 +7,6 @@ metadata:
 spec:
   containers:
     - name: client
-      image: ricardosouzamorais/multi-fib-client
+      image: ricardosouzamorais/multi-fib-client:0.0.2
       ports:
         - containerPort: 3000

@@ -39,7 +39,7 @@ class Fib extends Component {
 
     renderSeenIndexes() {
         // Default returning type when pulling data out of PostgreSQL 
-        return this.state.seenIndexes.map(({ number }) => number).join(', ');
+        return this.state.seenIndexes && this.state.seenIndexes instanceof Map && this.state.seenIndexes.map(({ number }) => number).join(', ');
     }
 
     renderValues() {

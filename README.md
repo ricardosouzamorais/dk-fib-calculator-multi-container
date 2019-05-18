@@ -343,3 +343,15 @@ When running `kubectl get services` we will dot not see the `targetPort`:
 ## Accessing the client
 
 If we try to access `http://localhost:31515` we will not get the page because all the ports that we are dealing are relate the the VM created by `minikube`. We actually need the IP address assigned to this VM. To get this IP address, just run: `minikube ip`
+
+## Kubernetes Architecture Summary and Deployment
+
+### Summary
+![Summary](/docs/images/kubernetes-architecture-diagram-summary.png)
+
+### Deployment
+![Detailed](/docs/images/kubernetes-architecture-diagram-detailed.png)
+
+## Kubernetes Takeways
+
+![Important Takeaways](/docs/images/kubernetes-important-takeaways.png)
