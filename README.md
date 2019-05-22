@@ -245,6 +245,23 @@ Objects are essentially things that are going to be created inside our Kubernete
 *  ***Pod*** is used to run a container
 *  ***Service*** is used to setup networking
 
+The are other object types like ***Deployment*** that can be used to config Pods and their properties that cannot be changed when using object type **Pod** .
+
+![Kubernetes Config Files 2](/docs/images/kubernetes-config-files-2.png) 
+
+*  ***Deployment*** is used to maintain a set of identical pods, ensuring that they have the correct configuration, the right number instances and in a runnable state
+
+#### Pods V.S. Deployments
+
+![Pods V.S. Deployments](/docs/images/kubernetes-pods-vs-deployments.png) 
+
+In a production environment, we do not use ***Pods*** but ***Deployments***.
+
+When we create a Deployment object, it is going to have attached to it something called a ***Pod Template*** that is a little block of configuration file that says what any ***Pod*** that is created by that deployment is supposed to look like.<br/>
+The behaviour is different from ***Pod***, for example, in case we change the port, the deployment will try to change the existing or alternatively attempt to kill this part entirely and replace it with a brand new ***Pod***. So, we can change any piece of configuration tied to a ***Pod*** that we want to.
+
+![Deployments To Pods](/docs/images/kubernetes-deployment-template.png)
+
 ### Keyword `apiVersion`
 
 When we specify the API version at the very top of the file that essentially limits the types of objects that we can specify winint a given configration file.
@@ -252,6 +269,8 @@ When we specify the API version at the very top of the file that essentially lim
 The following diagram does not represents all types available on both examples of APIs.
 
 ![apiVersion](/docs/images/kubernetes-config-files-apiversion.png) 
+
+The `name` and `type` are the unique identifying token for any object that we create in **k8s** cluster.
 
 ## Config file for a container (Pod - client-pod.yaml)
 
@@ -321,6 +340,17 @@ The `nodePort` is the port that we will use to access the client ***Pod*** throu
 
 Of course, as we do not use the `NodePort` ***Service*** in a production environment, this randomly assignment is not a problem.
 
+## Config file for a deployment (Deployment - client-deployment.yaml)
+
+The content inside `template` section is exactly the same of `spec` section of the `client-pod.yaml` file excepting by the missing `name` key inside `metadata`.<br/>
+This template section defines the exactly configuration that should be used for every ***Pod*** that is created and maintained by this deployment.
+
+### `spec` section
+
+*  `replicas` represents the number of different pods that this deployment is supposed to make
+*  `selector/matchLabels` works very similar to the selector we used in ***NodePort*** service
+
+
 ## Feed a config file to Kubectl
 
 Use the command: `kubectl apply -f FILENAME`
@@ -332,6 +362,7 @@ In order to get a status of any object that we submitted we can use the command:
 It grabs the status of an entire groups of object types, for example:
 *  `kubectl get pods`
 *  `kubectl get services`
+*  `kubectl describe <object type> <object name>`
 
 When running `kubectl get services` we will dot not see the `targetPort`:
 
@@ -340,9 +371,18 @@ When running `kubectl get services` we will dot not see the `targetPort`:
 |client-node-port|NodePort|10.102.212.13|<none>|3050:31515/TCP|2m18s|
 |kubernetes|ClusterIP|10.96.0.1|<none>|443/TCP|5d22h|
 
+## Remove an object
+
+We can use (imperative command): `kubectl delete -f FILENAME`
+
 ## Accessing the client
 
 If we try to access `http://localhost:31515` we will not get the page because all the ports that we are dealing are relate the the VM created by `minikube`. We actually need the IP address assigned to this VM. To get this IP address, just run: `minikube ip`
+
+## Updating a Config File
+
+**k8s** uses the `name` and the `type` ir order to check if the object has to be updated on the cluster or created.<br/>
+Despite that, not all config properties can be changed, only the image usage, some other image properties, some active deadline or tolerations property.
 
 ## Kubernetes Architecture Summary and Deployment
 
