@@ -373,6 +373,12 @@ When running `kubectl get services` we will dot not see the `targetPort`:
 
 When we change the version of the image on docker hub, for example, and we are using the tag latest, we can use the following imperative command in order to make the ***k8s*** update the ***Pods***: `kubectl client-deploy update_version VERSION_ID`
 
+We can also use `kubectl set` in order to update a property on one of our objects that exist inside of our cluster, like `kubectl set image OBJECT_TYPE/OBJECT_NAME CONTAINER_NAME = NEW_IMAGE_TO_USE`.
+*  `kubectl set image OBJECT_TYPE/OBJECT_NAME CONTAINER_NAME = NEW_IMAGE_TO_USE`
+
+Imagine the situation where you specify the version inside the ***Deployment*** config file. In this case, you would need a final commit after the build and image has been generated, just to get the version and put in the config file.<br/>
+In order to solve this, we can specify the image update by a command like this: `kubectl set image deployment/client-deployment client=ricardosouzamorais/multi-fib-client:0.0.5`
+
 ## Remove an object
 
 We can use (imperative command): `kubectl delete -f FILENAME`
@@ -404,3 +410,9 @@ When you start looking at ***k8s*** documentation, blog posts, stackoverflow and
 For real production deployment, every engineer out there, everyone in the community, is always to advocate taking the declarative approach.
 
 ![Imperative V.S. Declarative approaches](/docs/images/kubernetes-imperative-vs-declarative-deploy.png)
+
+## Different versions of Docker
+
+When running `minikube`, we have a version of ***docker-server*** running inside the VM created for the ***k8s*** cluster. If you do `docker ps` you will not see the docker processes that are being executed inside the VM of `minikube`. 
+
+You can execute `minikube ssh docker ps` or pointing ***docker-client*** to the ***docker-server*** running inside the VM with `eval $(minikube docker-env)` which is temporary to your current terminal.
