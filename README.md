@@ -350,7 +350,6 @@ This template section defines the exactly configuration that should be used for 
 *  `replicas` represents the number of different pods that this deployment is supposed to make
 *  `selector/matchLabels` works very similar to the selector we used in ***NodePort*** service
 
-
 ## Feed a config file to Kubectl
 
 Use the command: `kubectl apply -f FILENAME`
@@ -361,6 +360,7 @@ In order to get a status of any object that we submitted we can use the command:
 
 It grabs the status of an entire groups of object types, for example:
 *  `kubectl get pods`
+   *  `kubectl get pods -o wide` - gives us additional information like IP (ever single ***Pod*** has an IP assigned to it, internal to the virtual machine) and NODE
 *  `kubectl get services`
 *  `kubectl describe <object type> <object name>`
 
@@ -370,6 +370,8 @@ When running `kubectl get services` we will dot not see the `targetPort`:
 |---|---|---|---|---|---|
 |client-node-port|NodePort|10.102.212.13|<none>|3050:31515/TCP|2m18s|
 |kubernetes|ClusterIP|10.96.0.1|<none>|443/TCP|5d22h|
+
+When we change the version of the image on docker hub, for example, and we are using the tag latest, we can use the following imperative command in order to make the ***k8s*** update the ***Pods***: `kubectl client-deploy update_version VERSION_ID`
 
 ## Remove an object
 
