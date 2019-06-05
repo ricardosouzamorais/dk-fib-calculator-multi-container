@@ -1,3 +1,7 @@
+# Purpose
+
+This project was used to the course [**Docker and Kubernetes: The Complete Guide**](https://www.udemy.com/docker-and-kubernetes-the-complete-guide) till the end section 13. What has been seen was: **docker**, **docker-compose**, **Travis-CI**, **AWS Beanstalk**, also a simple **k8s** deployment of the client image.
+
 # Application Architecture
 
 ## Application Flows
